@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <link rel="stylesheet" type="text/css" href="../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../css/mystyle.css" />
+    <style>
+    	header{
+    		position:fixed;
+    		z-index:999;
+    	}
+    	.item{
+			width: calc(100vw - 20px);
+			height:50px;
+			position: relative;
+			border-bottom: 1px #ccc solid;
+			padding:10px;
+		}
+		.item > .tittle{
+			line-height: 50px;
+			font-size:25px;
+			white-space: nowrap;
+			text-overflow:ellipsis;
+			overflow: hidden;	
+			width: 90%;		
+		}
+		.item > .modify_date{
+			font-size:10px;
+			position:absolute;
+			right:10px;
+			bottom:5px;
+		}
+		#loader{
+			position:absolute;
+			top:44px;
+			height:calc(100vh - 44px);
+			width: 100vw;
+			background-color:#FFF;
+		}
+		#main{
+			position:relative;
+			top:69px;
+		}
+		.tap{
+    		background-color:#EEEEEE;
+    	}
+    	.button_tap{
+    		color:#6f6f6f;
+    	}
+    </style>
+</head>
+<body>
+	<header>
+		<div class="header">disannoy</div>
+		<div id="back" tapmode="button_tap" class="button_l">back</div>
+	</header>
+	<div id="main"></div>
+	<div id="loader"></div>
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/indexeddb.js"></script>
+<script type="text/javascript" src="../script/jquery.js"></script>
+<script type="text/javascript" src="../script/velocity.min.js"></script>
+<script type="text/javascript">
+apiready=function(){
+	$api.fixStatusBar($api.dom('header'));
+	getDataBySearch(api.pageParam.id,process);
+	function process(rowdata){
+    	var data = rowdata.data;
+    	for(var i = 0;i<data.length;i++){
+    		$("#main").prepend("<div class='item' tapmode='tap' id="+data[i].id+"><div class='tittle'>"+data[i].tittle+"</div><div class='modify_date'>"+data[i].modify_date+"</div></div>");
+    	}
+    	api.parseTapmode();
+    	$("#loader").velocity({opacity:0},{display:"none"});
+    }
+    $('#back').click(function(){
+		api.closeWin();
+	});
+	$('#main').on('click','.item',function(){
+    	var id = $(this).attr('id');
+    	var tittle = $(this).children(".tittle").html();
+		api.openWin({
+            name: 'read',
+            url: 'w_read.html',
+            pageParam: {
+				id:id,
+				tittle:tittle
+           }
+        });
+    });
+};
+</script>
+</html>

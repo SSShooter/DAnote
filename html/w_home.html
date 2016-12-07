@@ -1,0 +1,90 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../css/mystyle.css" />
+    <style>
+    	#list{display:none;}
+    	.tap{
+    		color:#6f6f6f;
+    	}
+    </style>
+</head>
+<body>
+	<header>
+		<div id="month" tapmode="tap" class="button_l">month</div>
+		<div id="list" tapmode="tap" class="button_l">list</div>
+		<div id="new" tapmode="tap" class="button_r">new</div>
+		<div class="header">disannoy</div>
+	</header>
+</body>
+</html>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/jquery.js"></script>
+<script type="text/javascript" src="../script/velocity.min.js"></script>
+<script type="text/javascript" src="../script/indexeddb.js"></script>
+<script type="text/javascript">
+	apiready = function(){
+		$api.fixStatusBar($api.dom('header'));
+		api.openFrame({
+            name: 'f_home',
+            url: './f_home.html',
+            rect: {
+                x: 0, 
+                y: $api.dom('header').offsetHeight
+            },
+            pageParam: {
+				top: $api.dom('header').offsetHeight
+	        }
+        });
+        $('#new').click(function(){
+	    	newFile();
+	    });
+	    $('#month').click(function(){
+	    	api.execScript({frameName: 'f_home',script: 'getMonthList()'});
+	    	$("#month").velocity("fadeOut",250,function(){
+				$("#list").velocity("fadeIn",250);
+			});
+	    });
+	    $('#list').click(function(){
+	    	api.execScript({frameName: 'f_home',script: 'getList()'});
+	    	$("#list").velocity("fadeOut",250,function(){
+				$("#month").velocity("fadeIn",250);
+			});
+	    });
+//	    $('.header').click(function(){
+//	    	deleteDB();
+//	    });
+	    function newFile(){
+	    	api.openWin({
+	            name: 'new',
+	            url: 'w_newFile.html',
+	            pageParam: {
+					create_date:getNowFormatDate()//创建时间
+	           }
+	        });
+	    }
+	    function getNowFormatDate() {
+		    var date = new Date();
+		    var seperator1 = "-";
+		    var seperator2 = ":";
+		    var month = date.getMonth() + 1;
+		    var strDate = date.getDate();
+		    if (month >= 1 && month <= 9) {
+		        month = "0" + month;
+		    }
+		    if (strDate >= 0 && strDate <= 9) {
+		        strDate = "0" + strDate;
+		    }
+		    var currentdate = date.getFullYear() + seperator1 + month + seperator1 + strDate
+		            + " " + date.getHours() + seperator2 + date.getMinutes()
+		            + seperator2 + date.getSeconds();
+		    return currentdate;
+		}
+	};
+	
+</script>

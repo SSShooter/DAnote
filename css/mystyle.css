@@ -1,0 +1,25 @@
+header{
+width:100vw;
+height: 44px;
+border-bottom: 1px #ccc solid;
+background-color: #363636;  
+color: #fff;
+text-align: center; 
+}
+.button_l{
+float: left;
+line-height: 44px;
+padding-left:13px;
+}
+.button_r{
+float: right;
+line-height: 44px;
+padding-right:13px;
+}
+.header{
+line-height:44px;
+font-size: 18px; 
+position: absolute;
+left: 50%;
+transform: translateX(-50%); 
+}

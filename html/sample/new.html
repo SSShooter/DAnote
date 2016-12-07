@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js" type="text/javascript"></script>
+</head>
+<body>
+	<div class="contenttext">wwwwwwwwwwwweefewatwatwawwwwwwwwwwwwwwwwwwww</div>
+<script type="text/javascript">
+	$(document).ready(function () {
+		$(".contenttext").mouseup(function (e) {
+			var txt;
+			var parentOffset = $(this).offset();
+			var x = e.pageX - parentOffset.left;
+			var y = e.pageY - parentOffset.top;
+			txt = window.getSelection();
+			if (txt.toString().length > 1) {
+				alert(txt);
+			}
+		});
+	});
+</script>	
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <link rel="stylesheet" type="text/css" href="../css/mystyle.css" />
+    <link rel="stylesheet" type="text/css" href="../css/api.css"/>
+    <style>
+    	#main{
+    		width: calc(100vw - 42px);
+    		line-height: 20px;
+    		font-size:20px;
+    		padding: 20px;
+    		display:none;
+    	}
+    	textarea{
+    		width: calc(100% - 82px);
+    		height: 50vh;
+    		line-height: 20px;
+    		font-size:20px;
+    		padding: 20px;
+    		margin:20px;
+    		resize: none;
+    		border:#4497ED 1px solid;
+    		display: none;
+    		border-radius: 5px;
+    	}
+    	#main > .date{
+    		float:right;
+    		color: #CCCCCC;
+    		font-size:16px;
+    		margin-bottom: 20px;
+    	}
+    	#main > .content{
+    		margin-bottom:10px;
+    		clear: both;
+    	}
+    	.tap{
+    		color:#6f6f6f;
+    	}
+    </style>
+</head>
+<body>
+	<div id="main"></div>
+	<textarea id="new_con"></textarea>
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/jquery.js"></script>
+<script type="text/javascript" src="../script/velocity.min.js"></script>
+<script type="text/javascript" src="../script/indexeddb.js"></script>
+<script type="text/javascript" src="../script/upload.js"></script>
+<script type="text/javascript">
+	var id;
+	setTimeout('read()',100);
+	function read(){
+		id = api.pageParam.id;
+		getDataById(id,process);
+	}
+	function process(ret){
+		var data = ret.data;
+		$("#main").append(data.content).fadeIn();
+		$("#main").append('<div class="date">'+data.modify_date+'</div>');
+	}
+	function save(){
+		var content = document.getElementById("new_con").value.replace(/\r/ig, "<br/>").replace(/\n/ig, "<br/>");//用jquery的.val()不能识别回车
+		content = '<div class="content">'+content+'</div>';
+		var old = $("#main").html();
+		var update = {content:old+content,modify_date:getNowFormatDate()};
+		if($("textarea").val()){
+			updateData(id,update,reload);
+		}
+		$("textarea").css('display','none');
+		addToUpload(id);
+	}
+	function reload(){
+		$("#main").velocity("fadeOut",250,function(){
+			location.reload();
+		});
+	}
+	function answer(){
+		$("#new_con").velocity("fadeIn",500);
+	}
+	function getNowFormatDate() {
+	    var date = new Date();
+	    var seperator1 = "-";
+	    var seperator2 = ":";
+	    var month = date.getMonth() + 1;
+	    var strDate = date.getDate();
+	    if (month >= 1 && month <= 9) {
+	        month = "0" + month;
+	    }
+	    if (strDate >= 0 && strDate <= 9) {
+	        strDate = "0" + strDate;
+	    }
+	    var currentdate = date.getFullYear() + seperator1 + month + seperator1 + strDate
+	            + " " + date.getHours() + seperator2 + date.getMinutes()
+	            + seperator2 + date.getSeconds();
+	    return currentdate;
+	}
+
+
+</script>
+</html>

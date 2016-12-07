@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <link rel="stylesheet" type="text/css" href="../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../css/mystyle.css" />
+    <style>
+    	input,textarea{
+    		margin:10px;
+    		border-radius: 5px;
+    	}
+    	input{
+    		border:#4497ED 1px solid;
+    		width: calc(100vw - 62px);
+    		height: 35px;
+    		line-height: 35px;
+    		font-size:20px;
+    		padding: 0 20px;
+    	}
+    	textarea{
+    		width: calc(100vw - 62px);
+    		height: calc(100vh - 184px);
+    		line-height: 20px;
+    		font-size:16px;
+    		padding: 20px;
+    		resize: none;
+    	}
+    	.tap{
+    		color:#6f6f6f;
+    	}
+    </style>
+</head>
+<body>
+	<header>
+		<div id="back" tapmode="tap" onclick="back();" class="button_l">back</div>
+		<div id="save" tapmode="tap" onclick="save();" class="button_r">save</div>
+		<div class="header">new diary</div>
+	</header>
+	<div id="main">
+		<input id="tittle" placeholder="新建日记"/>
+		<hr />
+		<textarea id="content" placeholder="请输入内容"></textarea>
+	</div>
+	
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/jquery.js"></script>
+<script type="text/javascript" src="../script/velocity.min.js"></script>
+<script type="text/javascript" src="../script/indexeddb.js"></script>
+<script type="text/javascript" src="../script/upload.js"></script>
+<script type="text/javascript">
+	apiready=function(){
+		$api.fixStatusBar($api.dom('header'));
+	};
+	function save(){
+		var tittle = $("#tittle").val();
+		var content = document.getElementById("content").value.replace(/\r/ig, "<br/>").replace(/\n/ig, "<br/>");//用jquery的.val()不能识别回车
+		if(tittle&&content){
+			content = '<div class="content">'+content+'</div>';
+			var modify_date = getNowFormatDate(),
+			create_date = api.pageParam.create_date,
+			year = create_date.substring(0,4),
+			month = create_date.substring(5,7),
+			folder = year+""+month;
+			var timestamp = new Date().getTime();
+			var data = {id:"id"+timestamp,create_date:create_date,modify_date:modify_date,content:content,tittle:tittle,folder:folder};
+			addData(data,ok);
+			addToUpload("id"+timestamp);
+		}
+		else {
+			api.toast({msg:'请输入标题和内容'});
+		}
+	}
+	function ok(){
+		api.execScript({
+			name:'root',
+			frameName:"f_home",
+	        script: 'location.reload();'
+        });
+		api.closeWin();
+	}
+	function back(){
+		api.closeWin();
+	}
+	function getNowFormatDate() {
+	    var date = new Date();
+	    var seperator1 = "-";
+	    var seperator2 = ":";
+	    var month = date.getMonth() + 1;
+	    var strDate = date.getDate();
+	    if (month >= 1 && month <= 9) {
+	        month = "0" + month;
+	    }
+	    if (strDate >= 0 && strDate <= 9) {
+	        strDate = "0" + strDate;
+	    }
+	    var currentdate = date.getFullYear() + seperator1 + month + seperator1 + strDate
+	            + " " + date.getHours() + seperator2 + date.getMinutes()
+	            + seperator2 + date.getSeconds();
+	    return currentdate;
+	}
+</script>
+</html>

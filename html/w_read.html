@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <link rel="stylesheet" type="text/css" href="../css/mystyle.css" />
+    <link rel="stylesheet" type="text/css" href="../css/api.css"/>
+    <style>
+    	#save{
+    		display:none;
+    	}
+    	.header{
+    		width: 65vw;
+    		white-space: nowrap;
+			text-overflow:ellipsis;
+			overflow: hidden;
+    	}
+    	.tap{
+    		color:#6f6f6f;
+    	}
+    </style>
+</head>
+<body>
+	<header>
+		<div id="back" tapmode="tap" class="button_l">back</div>
+		<div id="answer" tapmode="tap" class="button_r">answer</div>
+		<div id="save" tapmode="tap" class="button_r">save</div>
+		<div class="header"></div>
+	</header>
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/jquery.js"></script>
+<script type="text/javascript" src="../script/velocity.min.js"></script>
+<script type="text/javascript" src="../script/indexeddb.js"></script>
+<script type="text/javascript">
+	apiready = function(){
+		$api.fixStatusBar($api.dom('header'));
+		var id = api.pageParam.id;
+		var tittle = api.pageParam.tittle;
+		api.openFrame({
+            name: 'readFile',
+            url: './f_readFile.html',
+            rect: {
+                x: 0, 
+                y: $api.dom('header').offsetHeight
+            },
+            pageParam: {
+				id:id
+           }
+        });
+        $(".header").append(tittle);
+		$('#answer').click(function(){
+			api.execScript({frameName: 'readFile',script: 'answer()'});
+			$("#answer").velocity("fadeOut",250,function(){
+				$("#save").velocity("fadeIn",250);
+			});
+		});
+		$('#save').click(function(){
+			api.execScript({frameName: 'readFile',script: 'save()'});
+			$("#save").velocity("fadeOut",250,function(){
+				$("#answer").velocity("fadeIn",250);
+			});
+		});
+		$('#back').click(function(){api.closeWin();});
+	};
+</script>
+</html>

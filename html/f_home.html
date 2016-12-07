@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <link rel="stylesheet" type="text/css" href="../css/api.css"/>
+    <style>
+		.item,.m_item{
+			width: calc(100vw - 20px);
+			height:50px;
+			position: relative;
+			border-bottom: 1px #ccc solid;
+			padding:10px;
+		}
+		.item > .tittle,.m_item > .y,.m_item > .m{
+			line-height: 50px;
+			font-size:25px;
+		}
+		.item > .tittle{
+			white-space: nowrap;
+			text-overflow:ellipsis;
+			overflow: hidden;	
+			width: 90%;		
+		}
+		.item > .modify_date{
+			font-size:10px;
+			position:absolute;
+			right:10px;
+			bottom:5px;
+		}
+		#loader{
+			position:absolute;
+			top:44px;
+			height:calc(100vh - 44px);
+			width: 100vw;
+			background-color:#FFF;
+		}
+		#month_main{
+			display: none;
+		}
+		.tap{
+    		background-color:#EEEEEE;
+    	}
+    </style>
+</head>
+<body>
+	<div id="main"></div>
+	<div id="loader"></div>
+	<div id="month_main"></div>
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/indexeddb.js"></script>
+<script type="text/javascript" src="../script/jquery.js"></script>
+<script type="text/javascript" src="../script/velocity.min.js"></script>
+<script type="text/javascript" src="../script/upload.js"></script>
+<script type="text/javascript">
+	apiready=function(){
+		api.setRefreshHeaderInfo({
+		    visible: true,
+		    loadingImg: 'widget://image/refresh.png',
+		    bgColor: '#ccc',
+		    textColor: '#fff',
+		    textDown: '下拉同步...',
+		    textUp: '松开同步...',
+		    showTime: true
+		}, function(ret, err) {
+		    //在这里从服务器加载数据，加载完成后调用api.refreshHeaderLoadDone()方法恢复组件到默认状态
+    		var model = api.require("model");
+    		model.config({
+			    appKey: '3E57B561-7909-7C03-A8A1-4B7E402B80D9',
+			    host: 'https://d.apicloud.com'
+			});
+    		uploadData(function(diary_id){
+    			getDataById(diary_id,function(ret){
+    				var diary_id = ret.data.id;
+    				var diary_data = JSON.stringify(ret.data);
+    				if(!ret.data.dbid){
+    				model.insert({
+					    class: "diary",
+					    value: {
+						"diary_id":diary_id,
+						"diary_data":diary_data
+						}
+					}//测试
+					, function(ret, err){
+						var dbid = ret.id;
+						updateData(diary_id,{dbid:dbid});
+					   alert("ret: " + JSON.stringify(ret) + "\nerr: " + JSON.stringify(err));
+					}
+					);}
+					else{
+					model.updateById({
+					    class: "diary",
+					    id: ret.data.dbid,
+					    value: {
+						"diary_data":diary_data
+						}
+					}, function(ret, err){
+					    if( ret ){
+					         alert( JSON.stringify( ret ) );   
+					    }else{
+					         alert( JSON.stringify( err ) );
+					    }
+					});
+					}
+					api.toast({
+				        msg:'同步完成'
+			        });
+    			});
+    		})
+	        api.refreshHeaderLoadDone();
+		});
+		getDataAll(process);
+		function process(rowdata){
+	    	var data = rowdata.data;
+	    	for(var i = 0;i<data.length;i++){
+	    		$("#main").prepend("<div class='item' tapmode='tap' id="+data[i].id+"><div class='tittle'>"+data[i].tittle+"</div><div class='modify_date'>"+data[i].modify_date+"</div></div>");
+	    	}
+	    	$("#loader").velocity({opacity:0},{display:"none"});
+	    	api.parseTapmode();
+	    }
+	}
+	//getMDList(process);
+	getFirstCreateDate(function(rowdata){
+		if(rowdata.data){
+		    var data = rowdata.data.create_date.substring(0,4);
+			localStorage.setItem('firstyear', data);
+		}
+	});
+	
+    
+    //单击月文件夹
+    $('#month_main').on('click','.m_item',function(){//getMonthDetail
+    	var ym = $(this).attr('id');
+    	api.openWin({
+	        name: 'f_month',
+	        url: 'f_month.html',
+	        pageParam: {
+				id:ym
+	        }
+        });
+    });
+    //单击文件
+    $('#main').on('click','.item',function(){
+    	var id = $(this).attr('id');
+    	var tittle = $(this).children(".tittle").html();
+		api.openWin({
+            name: 'read',
+            url: 'w_read.html',
+            pageParam: {
+				id:id,
+				tittle:tittle
+           }
+        });
+    });
+    function getMonthList(){
+    	$("#month_main").empty();
+	    var date = new Date(),
+	    currentyear = date.getFullYear();
+    	for(var i = 0;i<=Number(currentyear)-Number(localStorage.firstyear);i++){
+    		for(var m=0;m<12;m++){
+				checkMonthContent(String(Number(localStorage.firstyear)+i)+String(m+1),function(rowdata){
+				    if(rowdata.data){
+					    $("#month_main").append('<div class="m_item" tapmode="tap" id="'+rowdata.id+'"><span class="y">'+rowdata.year+'年</span><span class="m">'+rowdata.month+'月</span></div>');
+				    }
+				});
+    		}
+    	}
+    	$("#main").velocity("fadeOut",250,function(){
+			$("#month_main").velocity("fadeIn",250);
+    		api.parseTapmode();
+		});
+    }
+     function getList(){
+    	$("#month_main").velocity("fadeOut",250,function(){
+			$("#main").velocity("fadeIn",250);
+		});
+    }
+    
+</script>
+</html>
